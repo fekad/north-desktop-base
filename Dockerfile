@@ -36,9 +36,9 @@ USER $NB_USER
 
 RUN mamba install --yes \
     'jupyter-server-proxy' \
-    'jupyterhub-singleuser' \
- && fix-permissions "${CONDA_DIR}" \
- && fix-permissions "/home/${NB_USER}"
+    'jupyterhub-singleuser'
+#  && fix-permissions "${CONDA_DIR}" \
+#  && fix-permissions "/home/${NB_USER}"
 
 RUN pip install --no-cache-dir jupyter-remote-desktop-proxy
 

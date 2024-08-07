@@ -45,3 +45,6 @@ RUN pip install --no-cache-dir jupyter-remote-desktop-proxy
 # Switch back to jovyan to avoid accidental container runs as root
 USER ${NB_UID}
 WORKDIR "${HOME}"
+
+COPY --chown=${NB_UID}:${NB_GID} xstartup ${HOME}/.vnc/xstartup
+

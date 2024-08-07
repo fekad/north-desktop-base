@@ -1,5 +1,9 @@
 FROM quay.io/jupyter/base-notebook:latest
 
+# Fix: https://github.com/hadolint/hadolint/wiki/DL4006
+# Fix: https://github.com/koalaman/shellcheck/wiki/SC3014
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 USER root
 
 RUN apt-get -y -qq update \
@@ -13,7 +17,8 @@ RUN apt-get -y -qq update \
         fonts-dejavu \
     # chown $HOME to workaround that the xorg installation creates a
     # /home/jovyan/.cache directory owned by root
- && chown -R $NB_UID:$NB_GID $HOME \
+    #  && chown -R $NB_UID:$NB_GID $HOME \
+ && fix-permissions "/home/${NB_USER}" \
  && rm -rf /var/lib/apt/lists/*
 
 # Install a VNC server (TurboVNC)
@@ -36,3 +41,7 @@ RUN mamba install --yes \
  && fix-permissions "/home/${NB_USER}"
 
 RUN pip install --no-cache-dir jupyter-remote-desktop-proxy
+
+# Switch back to jovyan to avoid accidental container runs as root
+USER ${NB_UID}
+WORKDIR "${HOME}"

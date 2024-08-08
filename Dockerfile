@@ -1,4 +1,4 @@
-FROM quay.io/jupyter/base-notebook:latest
+FROM quay.io/jupyter/base-notebook:2024-07-15
 
 # Fix: https://github.com/hadolint/hadolint/wiki/DL4006
 # Fix: https://github.com/koalaman/shellcheck/wiki/SC3014
@@ -32,15 +32,23 @@ RUN wget -q -O- https://packagecloud.io/dcommander/turbovnc/gpgkey | \
         turbovnc \
  && rm -rf /var/lib/apt/lists/*
 
+# RUN apt-get -y -qq update \
+#  && apt-get -y -qq install \
+#         tigervnc-standalone-server \
+#         tigervnc-xorg-extension \
+#         # websockify \
+#  && rm -rf /var/lib/apt/lists/*
+
 USER $NB_USER
 
 RUN mamba install --yes \
     'jupyter-server-proxy' \
     'jupyterhub-singleuser'
-#  && fix-permissions "${CONDA_DIR}" \
-#  && fix-permissions "/home/${NB_USER}"
 
-RUN pip install --no-cache-dir jupyter-remote-desktop-proxy
+# RUN pip install --no-cache-dir jupyter-remote-desktop-proxy
+WORKDIR /opt/jupyter-remote-desktop-proxy
+COPY --chown=$NB_UID:$NB_GID jupyter-remote-desktop-proxy /opt/jupyter-remote-desktop-proxy
+RUN pip install .
 
 # Switch back to jovyan to avoid accidental container runs as root
 USER ${NB_UID}
